@@ -44,7 +44,7 @@
 
 <!-- Script -->
 <script setup>
-import { ref, nextTick, defineProps, defineEmits } from 'vue'
+import { ref, nextTick, defineProps, defineEmits, onMounted, onUnmounted } from 'vue'
 import draggable from 'vuedraggable' 
 import NoteCard from './NoteCard.vue'  // importamos componente de Notas.
 
@@ -137,6 +137,46 @@ function confirmDelete(note) {
 function updateEditText(value) {
   editText.value = value
 }
+
+// ----------------------------------------------------
+// AÑADIR LÓGICA DE CERRAR MENÚ AL CLIC FUERA
+// ----------------------------------------------------
+
+// 1. Nueva función para manejar el clic global
+function handleDocumentClick(event) {
+    // Si hay un menú abierto, lo cerramos.
+    // Gracias al .stop en el botón del NoteCard, este handler no se ejecuta
+    // cuando haces clic para ABRIR/CERRAR el menú.
+    if (activeMenuId.value !== null) {
+        // Establecer a null cierra el menú, ya que NoteCard deja de renderizarlo.
+        activeMenuId.value = null; 
+    }
+}
+
+// 2. Montar y Desmontar el oyente global
+onMounted(() => {
+    // Escucha todos los clics en la página
+    document.addEventListener('click', handleDocumentClick);
+})
+
+onUnmounted(() => {
+    // ¡IMPORTANTE! Remueve el oyente cuando el componente se destruye para evitar fugas de memoria.
+    document.removeEventListener('click', handleDocumentClick);
+})
+
+// ----------------------------------------------------
+// Modificar la función toggleMenu para usar el .stop
+//function toggleMenu(id) {
+    // Esto se llama solo si el clic NO fue detenido por el .stop
+    //activeMenuId.value = activeMenuId.value === id ? null : id
+//}
+
+// La función closeMenu ya no es necesaria si usas el handler global, puedes eliminarla
+/*
+function closeMenu(id) {
+  if (activeMenuId.value === id) activeMenuId.value = null
+}
+*/
 
 </script>
 

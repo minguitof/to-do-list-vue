@@ -1,14 +1,14 @@
 <template>
-  <div class="note-card" @click.outside="() => emit('closeMenu', props.note.id)">
+  <div class="note-card"> 
     <div v-if="editingId === note.id">
-        <input
-          :value="editText"
-          @input="onInputChange"
-          @keyup.enter="() => emit('saveEdit', note)"
-          @blur="() => emit('cancelEdit')"
-          class="note-input"
-          autofocus
-        />
+      <input
+        :value="editText"
+        @input="onInputChange"
+        @keyup.enter="() => emit('saveEdit', note)"
+        @blur="() => emit('cancelEdit')"
+        class="note-input"
+        autofocus
+      />
     </div>
     <div v-else class="note-content">
       <span>{{ note.text }}</span>
@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import IconThreePoints from './icons/IconThreePoints.vue'
 
 const props = defineProps({
