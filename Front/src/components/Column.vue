@@ -46,142 +46,154 @@
 <script setup>
 import { ref, nextTick, defineProps, defineEmits, onMounted, onUnmounted } from 'vue'
 import draggable from 'vuedraggable' 
-import NoteCard from './NoteCard.vue'  // importamos componente de Notas.
+import NoteCard from './NoteCard.vue' 
 
 // --- Props y emits
 const props = defineProps({
-  title: String,
-  notes: Array,
-  type: String,
+ title: String,
+ notes: Array,
+ type: String,
+    // 💡 RECIBIMOS EL ESTADO GLOBAL DESDE Board.vue
+ editingId: [Number, null], 
+ editText: String, 
+ activeMenuId: [Number, null]
 })
 
-const emit = defineEmits(['update:notes'])
+const emit = defineEmits([
+ 'update:notes',
+ 'startEdit',  // NUEVO: Para iniciar la edición global
+ 'saveEdit',  // NUEVO: Para guardar la edición global
+ 'cancelEdit',  // NUEVO: Para cancelar la edición global
+ 'update:editText', // NUEVO: Para actualizar el texto global
+ 'update:activeMenuId' // NUEVO: Para controlar el menú global
+])
 
-// --- Refs
-const newNoteText = ref('') // contenido que el usuario escribe.
+// --- Refs (Solo estados locales)
+const newNoteText = ref('')
 const showInput = ref(false) 
-const inputRef = ref(null) // referencia al input para poder hacerle focus.
+const inputRef = ref(null) 
 
-const editingId = ref(null) // guarda el ID de la nota que se está editando.
-const editText = ref('') // texto temporal que se está editando.
+// 🛑 IMPORTANTE: Eliminamos los refs locales editingId, editText, activeMenuId
 
-const activeMenuId = ref(null) // Menú contextual (tres puntos)
-
-// controla si el input está visible.
+// 1. Alterna la visibilidad del input y enfoca
 function toggleInput() {
-  showInput.value = !showInput.value
-  if (showInput.value) {
-   nextTick(() => inputRef.value?.focus())
-  }
+   showInput.value = !showInput.value
+   if (showInput.value) {
+   // Usa nextTick para enfocar DESPUÉS de que el input se renderice
+   nextTick(() => {
+   inputRef.value?.focus()
+   })
+   } else {
+   // Limpia el texto si se cierra
+   newNoteText.value = ''
+   }
 }
 
-// Función que emite una nueva lista de notas.
-function onUpdateModelValue(newValue) {
-  emit('update:notes', newValue)
-}
-
-// Crea una nueva nota con un id único (timestamp) y la agrega a la lista.
+// 2. Agrega la nueva nota a la lista
 function addNote() {
-  const text = newNoteText.value.trim()
-  if (!text) return
+    const text = newNoteText.value.trim()
+    if (!text) {
+    showInput.value = false 
+    return
+    }
+  
+    // Genera un ID único (Date.now() es un buen temporal)
+    const newId = Date.now() 
+  
+    const newNote = {
+    id: newId,
+    text: text
+    }
 
-  const newNote = { id: Date.now(), text }
+  // Combina las notas antiguas con la nueva y emite el array completo al Board.vue
   emit('update:notes', [...props.notes, newNote])
+    
+  // Limpia y oculta el formulario
   newNoteText.value = ''
   showInput.value = false
 }
 
-// Aquí van funciones relacionadas a la edición y menú
+// 3. Manejador de vuedraggable para actualizar el array (drag & drop)
+function onUpdateModelValue(newNotes) {
+ // Emite la nueva lista después de un cambio por drag and drop
+ emit('update:notes', newNotes)
+}
+
+
+// ... (toggleInput, onUpdateModelValue, addNote se mantienen)
+
+// 🔑 Lógica del Menú Único
 function toggleMenu(id) {
-  activeMenuId.value = activeMenuId.value === id ? null : id
+  // 1. Si el ID que se recibe es el mismo que ya está abierto, lo cerramos globalmente.
+  if (props.activeMenuId === id) {
+    emit('update:activeMenuId', null);
+      return;
+  }
+ 
+  // 2. Cancelamos cualquier edición activa antes de abrir el menú.
+  cancelEdit(); 
+
+  // 3. Abrimos el nuevo menú, actualizando el estado global.
+  emit('update:activeMenuId', id);
 }
 
-// Maneja qué menú (de los 3 puntos) está abierto actualmente.
-function closeMenu(id) {
-  if (activeMenuId.value === id) activeMenuId.value = null
-}
-
-// Comienza la edición: muestra el input con el texto original.
+// 🔑 Lógica de Inicio de Edición
 function startEdit(note) {
-  editingId.value = note.id
-  editText.value = note.text
-  activeMenuId.value = null
+  // 1. Cierra el menú global
+  emit('update:activeMenuId', null); 
+ 
+  // 2. Emite el evento al Board.vue para establecer el editingId y el editText
+  emit('startEdit', note)
 }
 
-// Guarda los cambios editados y actualiza la lista.
+// 🔑 Lógica de Guardar Edición
 function saveEdit(note) {
-  const updatedText = editText.value.trim()
-  if (!updatedText) return
-  const updatedNotes = props.notes.map(n =>
-    n.id === note.id ? { ...n, text: updatedText } : n
-  )
-  emit('update:notes', updatedNotes)
-  editingId.value = null
+// Usamos la prop global (props.editText) en lugar del ref local
+ const updatedText = props.editText.trim() 
+   if (!updatedText) return
+
+  // Emitimos al padre para que guarde y limpie el estado
+  emit('saveEdit', { noteId: note.id, newText: updatedText })
 }
 
-// Cancela la edición sin guardar.
+// 🔑 Lógica de Cancelar Edición
 function cancelEdit() {
-  editingId.value = null
+ // Emitimos al padre para que limpie el estado
+ emit('cancelEdit')
+}
+
+// Escucha si surgen cambios en el componente NoteCard y los emite al padre.
+function updateEditText(value) {
+ emit('update:editText', value)
 }
 
 // Muestra confirmación antes de eliminar la nota seleccionada.
 function confirmDelete(note) {
-  activeMenuId.value = null
-  const confirmed = confirm('¿Estás seguro de eliminar esta nota?')
-  if (!confirmed) return
-  const updatedNotes = props.notes.filter(n => n.id !== note.id)
-  emit('update:notes', updatedNotes)
+  // Cierra el menú global antes de la confirmación
+    emit('update:activeMenuId', null); 
+    const confirmed = confirm('¿Estás seguro de eliminar esta nota?')
+    if (!confirmed) return
+    const updatedNotes = props.notes.filter(n => n.id !== note.id)
+    emit('update:notes', updatedNotes)
 }
 
-// Escucha si surgen cambios en el componente NoteCard.
-function updateEditText(value) {
-  editText.value = value
-}
-
-// ----------------------------------------------------
-// AÑADIR LÓGICA DE CERRAR MENÚ AL CLIC FUERA
-// ----------------------------------------------------
-
-// 1. Nueva función para manejar el clic global
+// 🔑 Manejador de Clic Global (para cerrar menú)
 function handleDocumentClick(event) {
-    // Si hay un menú abierto, lo cerramos.
-    // Gracias al .stop en el botón del NoteCard, este handler no se ejecuta
-    // cuando haces clic para ABRIR/CERRAR el menú.
-    if (activeMenuId.value !== null) {
-        // Establecer a null cierra el menú, ya que NoteCard deja de renderizarlo.
-        activeMenuId.value = null; 
-    }
+ // Si hay un menú abierto, lo cerramos globalmente.
+  if (props.activeMenuId !== null) {
+    emit('update:activeMenuId', null); 
+  }
 }
 
-// 2. Montar y Desmontar el oyente global
 onMounted(() => {
-    // Escucha todos los clics en la página
-    document.addEventListener('click', handleDocumentClick);
+ document.addEventListener('click', handleDocumentClick);
 })
 
 onUnmounted(() => {
-    // ¡IMPORTANTE! Remueve el oyente cuando el componente se destruye para evitar fugas de memoria.
-    document.removeEventListener('click', handleDocumentClick);
+ document.removeEventListener('click', handleDocumentClick);
 })
-
-// ----------------------------------------------------
-// Modificar la función toggleMenu para usar el .stop
-//function toggleMenu(id) {
-    // Esto se llama solo si el clic NO fue detenido por el .stop
-    //activeMenuId.value = activeMenuId.value === id ? null : id
-//}
-
-// La función closeMenu ya no es necesaria si usas el handler global, puedes eliminarla
-/*
-function closeMenu(id) {
-  if (activeMenuId.value === id) activeMenuId.value = null
-}
-*/
-
 </script>
 
-<!-- Styles -->
 <style scoped>
 @import '../assets/styles/Column.css';
 </style>
-

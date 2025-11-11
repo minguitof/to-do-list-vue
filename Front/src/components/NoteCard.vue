@@ -16,14 +16,13 @@
         <IconThreePoints />
       </button>
 
-      <div v-if="activeMenuId === note.id" class="menu-dropdown">
+      <div v-if="activeMenuId === note.id" class="menu-dropdown" @click.stop>
         <button @click="() => emit('startEdit', note)">✏️ Editar</button>
         <button @click="() => emit('confirmDelete', note)">🗑️ Eliminar</button>
       </div>
+      </div>
     </div>
-  </div>
 </template>
-
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import IconThreePoints from './icons/IconThreePoints.vue'
