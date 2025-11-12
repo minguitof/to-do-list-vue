@@ -17,7 +17,6 @@
           :editText="editText"
           :activeMenuId="activeMenuId"
           @toggleMenu="toggleMenu"
-          @closeMenu="closeMenu"
           @startEdit="startEdit"
           @saveEdit="saveEdit"
           @cancelEdit="cancelEdit"
@@ -73,7 +72,7 @@ const newNoteText = ref('')
 const showInput = ref(false) 
 const inputRef = ref(null) 
 
-// 🛑 IMPORTANTE: Eliminamos los refs locales editingId, editText, activeMenuId
+// IMPORTANTE: Eliminamos los refs locales editingId, editText, activeMenuId
 
 // 1. Alterna la visibilidad del input y enfoca
 function toggleInput() {

@@ -17,6 +17,7 @@
   color: #000000; /* Establece el color del texto a gris oscuro */
 }
 
+/* Reinicio de CSS para elementos raíz */
 html, body, #app {
   margin: 0;
   padding: 0;

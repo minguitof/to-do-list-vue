@@ -1,3 +1,4 @@
+/* Tarjeta de Nota */
 .note-card {
   background: white;
   padding: 12px;
@@ -24,10 +25,12 @@
   cursor: grab;
 }
 
+/* Estados de Interacción */
 .note-card:active {
   cursor: grabbing;
 }
 
+/* Botón de Menú de Opciones */
 .menu-button {
   position: absolute;
   top: 8px;
@@ -40,6 +43,7 @@
   padding: 0;
 }
 
+/* Menú Desplegable */
 .menu-dropdown {
   position: absolute;
   top: 36px;
@@ -66,6 +70,7 @@
   background-color: #eee;
 }
 
+/* Estilos del Campo de Edición */
 .note-input {
   width: 100%;
   padding: 6px;
@@ -84,6 +89,7 @@
   border-radius: 4px;
 }
 
+/* Estilos de Iconografía Tres Puntos */
 .svg-puntos-menu {
   color: #333; 
 }

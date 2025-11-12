@@ -5,6 +5,7 @@
   z-index: 100;
 }
 
+/* Botón (Toggle) */
 .gear-button {
   background: none;
   border: none;
@@ -21,6 +22,7 @@
   color: #eee;
 }
 
+/* Menú Desplegable */
 .settings-menu {
   margin-top: 0.5rem;
   padding: 0.5rem 1rem;
