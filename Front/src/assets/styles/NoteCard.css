@@ -11,6 +11,19 @@
   cursor: grab;
 }
 
+.dark .note-card {
+  background: #181A1B;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: grab;
+}
+
 .note-card:active {
   cursor: grabbing;
 }
@@ -59,4 +72,22 @@
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.dark .note-input {
+  background-color: #181A1B;
+  color: #eee;
+  width: 100%;
+  padding: 6px;
+  font-size: 1rem;
+  border: 1px solid #3E4446;
+  border-radius: 4px;
+}
+
+.svg-puntos-menu {
+  color: #333; 
+}
+
+.dark .svg-puntos-menu {
+  color: #eee 
 }

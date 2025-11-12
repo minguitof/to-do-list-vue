@@ -1,5 +1,5 @@
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24" class="svg-puntos-menu">
     <circle cx="5" cy="12" r="2" />
     <circle cx="12" cy="12" r="2" />
     <circle cx="19" cy="12" r="2" />
