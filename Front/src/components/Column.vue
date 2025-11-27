@@ -46,6 +46,7 @@
 import { ref, nextTick, defineProps, defineEmits, onMounted, onUnmounted } from 'vue'
 import draggable from 'vuedraggable' 
 import NoteCard from './NoteCard.vue' 
+import { useNoteStore } from '@/stores/noteStore'
 
 // --- Props y emits
 const props = defineProps({
@@ -57,6 +58,8 @@ const props = defineProps({
  editText: String, 
  activeMenuId: [Number, null]
 })
+
+const store = useNoteStore()
 
 const emit = defineEmits([
  'update:notes',
@@ -96,20 +99,11 @@ function addNote() {
     return
     }
   
-    // Genera un ID único (Date.now() es un buen temporal)
-    const newId = Date.now() 
-  
-    const newNote = {
-    id: newId,
-    text: text
-    }
-
-  // Combina las notas antiguas con la nueva y emite el array completo al Board.vue
-  emit('update:notes', [...props.notes, newNote])
+    store.addNoteToColumn(props.type, text)
     
-  // Limpia y oculta el formulario
-  newNoteText.value = ''
-  showInput.value = false
+    // Limpia y oculta el formulario
+    newNoteText.value = ''
+    showInput.value = false
 }
 
 // 3. Manejador de vuedraggable para actualizar el array (drag & drop)

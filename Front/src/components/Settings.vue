@@ -1,27 +1,11 @@
-<template>
-  <div class="settings-wrapper" ref="settingsWrapper"> 
-    <button @click="toggleMenu" class="gear-button" aria-label="Abrir configuración">
-      <IconSettings />
-    </button>
-
-    <div v-if="menuOpen" class="settings-menu">
-      <label class="menu-item">
-        🌙 Tema oscuro:
-        <input type="checkbox" v-model="darkMode" @change="toggleTheme" />
-      </label>
-
-      <button @click="exportToExcel" class="export-button menu-item">
-        📊 Exportar a Excel
-      </button>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import IconSettings from './icons/IconSettings.vue'
-// 1. Importamos las utilidades de la librería xlsx
 import { utils, writeFile } from 'xlsx'
+// 1. IMPORTAMOS EL STORE
+import { useNoteStore } from '../stores/noteStore' // Asegúrate que la ruta sea correcta
+
+const store = useNoteStore() // 2. INICIALIZAMOS EL STORE
 
 const menuOpen = ref(false)
 const darkMode = ref(false)
@@ -41,36 +25,35 @@ const toggleTheme = () => {
   }
 }
 
-// --- LÓGICA DE EXPORTACIÓN EXCEL MEJORADA ---
+// --- LÓGICA DE EXPORTACIÓN EXCEL CORREGIDA ---
 const exportToExcel = () => {
-  const rawData = localStorage.getItem('kanban-notes')
+  // YA NO LEEMOS DE LOCALSTORAGE. 
+  // LEEMOS DIRECTAMENTE DE PINIA (La verdad absoluta de la app)
   
-  if (!rawData) {
+  // Como Pinia ya tiene el objeto listo, no necesitamos JSON.parse
+  const columns = store.columns 
+  
+  // Validación simple: Si las columnas están vacías (aunque por defecto Pinia tiene datos)
+  if (!columns) {
     alert("No hay datos para exportar")
     return
   }
 
-  const parsedData = JSON.parse(rawData) 
-  
-  // 1. Extraemos las listas en arrays separados
-  const todoList = parsedData.todo || []
-  const doingList = parsedData.doing || []
-  const doneList = parsedData.done || []
+  // 1. Extraemos las listas directamente del Store
+  const todoList = columns.todo || []
+  const doingList = columns.doing || []
+  const doneList = columns.done || []
 
-  // 2. Encontramos cuál es la columna más larga (para saber cuántas filas crear)
+  // 2. Encontramos cuál es la columna más larga
   const maxRows = Math.max(todoList.length, doingList.length, doneList.length)
 
   let excelRows = []
 
-  // 3. Creamos las filas "horizontales" combinando las 3 columnas
+  // 3. Creamos las filas
   for (let i = 0; i < maxRows; i++) {
-    // Para cada fila, preguntamos: ¿Existe una nota en esta posición?
-    // Si existe, ponemos su texto. Si no, ponemos un texto vacío ""
-    
     const row = {
-      // Opción A: Si quisieras un consecutivo (1, 2, 3) descomenta la línea de abajo:
-      // "No.": i + 1, 
-
+      // Como estamos leyendo de Pinia (que son objetos reactivos), 
+      // accedemos a .text normalmente.
       "Por Hacer": todoList[i] ? todoList[i].text : "",
       "En Progreso": doingList[i] ? doingList[i].text : "",
       "Hecho": doneList[i] ? doneList[i].text : ""
@@ -81,14 +64,12 @@ const exportToExcel = () => {
 
   // 4. Generar el Excel
   const worksheet = utils.json_to_sheet(excelRows)
-  
-  // Ajuste opcional: Forzar el ancho de las columnas (se ve más pro)
-  const colWidth = { wch: 30 } // 30 caracteres de ancho
+  const colWidth = { wch: 30 }
   worksheet['!cols'] = [ colWidth, colWidth, colWidth ] 
 
   const workbook = utils.book_new()
   utils.book_append_sheet(workbook, worksheet, "Tablero Visual")
-  writeFile(workbook, "Mi_Kanban_Visual.xlsx")
+  writeFile(workbook, "Mi_Kanban_Pinia.xlsx")
   
   menuOpen.value = false
 }
@@ -113,10 +94,28 @@ onUnmounted(() => {
 })
 </script>
 
+<template>
+  <div class="settings-wrapper" ref="settingsWrapper"> 
+    <button @click="toggleMenu" class="gear-button" aria-label="Abrir configuración">
+      <IconSettings />
+    </button>
+
+    <div v-if="menuOpen" class="settings-menu">
+      <label class="menu-item">
+        🌙 Tema oscuro:
+        <input type="checkbox" v-model="darkMode" @change="toggleTheme" />
+      </label>
+
+      <button @click="exportToExcel" class="export-button menu-item">
+        📊 Exportar a Excel
+      </button>
+    </div>
+  </div>
+</template>
+
 <style scoped>
 @import '../assets/styles/Settings.css';
 
-/* Estilos extra para el botón de exportar */
 .menu-item {
   display: flex;
   align-items: center;
@@ -133,13 +132,13 @@ onUnmounted(() => {
   font-family: inherit;
   font-size: 1rem;
   text-align: left;
-  border-top: 1px solid #ccc; /* Separador visual */
+  border-top: 1px solid #ccc;
   margin-top: 5px;
   padding-top: 10px;
 }
 
 .export-button:hover {
-  color: #42b883; /* Verde Vue */
+  color: #42b883;
   font-weight: bold;
 }
 </style>
