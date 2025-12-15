@@ -39,33 +39,24 @@ body {
   color: #eee;
 }
 
-/* Degradado para el titulo */
+/* Título para el TEMA CLARO */
+.app-title {
+  font-size: 3rem;
+  font-weight: 800; /* Extra bold */
+  background: linear-gradient(90deg, #18A0FB 0%, #B729D9 100%); 
+  background-position: center; 
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center; 
+}
 
-.rainbow-text {
-  font-weight: bold; /* Hace que el texto sea más grueso */
-  font-size: 4rem; /* Tamaño del titulo */
-  background: linear-gradient( /* Colores */
-    to right,
-    red,
-    orange,
-    yellow,
-    green,
-    blue,
-    indigo,
-    violet,
-    indigo,
-    blue,
-    green,
-    yellow,
-    orange,
-    red
-  );
-  background-size: 200% 100%; /* Ajusta el tamaño del fondo (en este caso, el gradiente) */
-  background-position: center; /* Define desde dónde se muestra el fondo dentro del elemento */
-  -webkit-background-clip: text; /* Controla cómo se recorta el fondo */
-  -webkit-text-fill-color: transparent; /* Hace que el color real del texto sea transparente  */
-  animation: pulse-gradient 4s ease-in-out infinite; /* Aplica una animación llamada pulse-gradient */
-  text-align: center; /* Centra el texto horizontalmente dentro de su contenedor */
+/* Título para el TEMA OSCURO */
+.dark .app-title {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #4DD0E1 0%, #A5D6A7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 

@@ -29,9 +29,9 @@ import IconThreePoints from './icons/IconThreePoints.vue'
 
 const props = defineProps({
   note: Object,
-  editingId: [Number, null],
+  editingId: [String, null],
   editText: String,
-  activeMenuId: [Number, null],
+  activeMenuId: [String, null],
 })
 
 const emit = defineEmits(['startEdit', 'saveEdit', 'cancelEdit', 'toggleMenu', 'closeMenu', 'confirmDelete', 'updateEditText'])

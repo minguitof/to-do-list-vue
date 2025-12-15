@@ -1,0 +1,24 @@
+{
+  "notes": [
+    {
+      "id": "05af7c82-d011-450d-ad94-f0ec77ae2fbb",
+      "text": "Comprar Portatil",
+      "columnType": "done"
+    },
+    {
+      "id": "a5d3ef59-1296-46cb-8ab5-db2fcfdded44",
+      "text": "Hacer ejercicio",
+      "columnType": "todo"
+    },
+    {
+      "id": "39291f6f-4eb5-41dc-97a9-6d5d3067f47a",
+      "text": "Aprender Vue 3",
+      "columnType": "doing"
+    },
+    {
+      "id": "afad1d76-6a36-46ae-b24a-acc28a8467df",
+      "text": "Leer un libro",
+      "columnType": "done"
+    }
+  ]
+}
