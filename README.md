@@ -1,5 +1,7 @@
 # to-do-list
 
+PAUSED: I'm going through a personal transformation and facing new challenges, learning a different kind of stack :)
+
 This is a task management app built as a personal project, currently under development.
 
 [Ver App en Netlify](https://to-do-list-vue-minguito.netlify.app/)
